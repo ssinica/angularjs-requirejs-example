@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>AngularJS for Java developer</title>
+        <script src="js/lib/jquery-2.1.4.js"></script>
+    </head>
+    <body>
+
+        <h1>AngularJS for Java developer</h1>
+
+        <div id="example-app" ng-controller="exampleController">
+
+        </div>
+
+        <script>
+
+            var version = 1;
+
+            jQuery.ajax({
+                url: "/js/lib/requirejs-2.1.22.js",
+                type: "GET",
+                dataType: "script",
+                cache: true,
+                async: false,
+                global: false,
+                "throws": true,
+                success: function () {
+                    require(["/js/config.js?v=" + version], function () {
+                        require(["exampleApp"]);
+                    });
+                }
+            });
+        </script>
+
+    </body>
+</html>
