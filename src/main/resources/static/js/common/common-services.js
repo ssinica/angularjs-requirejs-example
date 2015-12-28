@@ -4,10 +4,10 @@ define([
 ], function(angular) {
 
     angular.module('common')
-    .factory('commonService', ['$log', function($log) {
+    .factory('commonService', [function() {
         return {
-            say: function(phrase) {
-                $log.debug(phrase);
+            sayHello: function(name) {
+                return "Hello, " + name + "!";
             }
         }
     }]);

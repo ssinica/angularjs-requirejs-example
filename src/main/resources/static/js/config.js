@@ -8,12 +8,15 @@ requirejs.config({
         // vendor
         vendor: 'lib/vendor',
 
-        // our apps
+        // common app
         commonApp: 'common/common-app',
 
+        // example app
         exampleApp: 'example/example-app'
 
     },
+    // Angular is not distributed as AMD module, so we need to wrap it with define().
+    // See http://requirejs.org/docs/api.html#config-shim for more details.
     shim: {
         'angular': {
             exports: 'angular'

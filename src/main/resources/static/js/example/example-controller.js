@@ -4,8 +4,10 @@ define([
 ], function(angular) {
 
     angular.module('example')
-    .controller('exampleController', ['commonService', function(commonService) {
-        commonService.say("Hello world!");
+    .controller('exampleController', ['$scope', 'commonService', function($scope, commonService) {
+
+        $scope.greeting = commonService.sayHello("Sergey");
+
     }]);
 
 });

@@ -1,19 +1,31 @@
 <html>
     <head>
         <title>AngularJS for Java developer</title>
+
+        <!--
+        For demonstration purposes let's load JQuery before RequireJS, so we can use
+        it to load and bootstrap RequireJS.
+
+        In real life you probably will want to optimize this.
+
+        For example, you can load and bootstrap RequireJS with <script> tag, and RequireJS will
+        load JQuery, your APP, etc...
+        -->
         <script src="js/lib/jquery-2.1.4.js"></script>
+
     </head>
     <body>
 
-        <h1>AngularJS for Java developer</h1>
-
         <div id="example-app" ng-controller="exampleController">
-
+            <h1>{{ greeting }}</h1>
         </div>
 
         <script>
 
-            var version = 1;
+            // 1. Assume we already have JQuery loaded.
+            // 2. Load RequireJS library.
+            // 3. Load config.js with modules configuration.
+            // 4. Start example application.
 
             jQuery.ajax({
                 url: "/js/lib/requirejs-2.1.22.js",
@@ -24,7 +36,7 @@
                 global: false,
                 "throws": true,
                 success: function () {
-                    require(["/js/config.js?v=" + version], function () {
+                    require(["/js/config.js"], function () {
                         require(["exampleApp"]);
                     });
                 }

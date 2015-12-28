@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>example</groupId>
-    <artifactId>server</artifactId>
+    <groupId>ssinica.example</groupId>
+    <artifactId>angularjs-requirejs-example</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <parent>
@@ -22,18 +22,34 @@
     </dependencies>
 
     <build>
+
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+
         </plugins>
+
     </build>
 
     <profiles>
 
+        <!-- Path to Nashorn JS engine included in JDK8 -->
+        <!-- https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jjs.html -->
         <profile>
-            <id>prod.win</id>
+            <id>platform.win</id>
             <activation>
                 <os>
                     <family>windows</family>
@@ -45,7 +61,7 @@
         </profile>
 
         <profile>
-            <id>prod.linux</id>
+            <id>platform.linux</id>
             <activation>
                 <os>
                     <family>unix</family>
@@ -57,12 +73,30 @@
         </profile>
 
         <profile>
-            <id>prod</id>
+
+            <id>optimize</id>
+
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
+
             <build>
+
+                <!-- Exclude 'development' JS resources from final JAR. -->
+                <!-- We will concatenate and minify them and include in final JAR later on. -->
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>false</filtering>
+                        <excludes>
+                            <exclude>**/static/js/**/*.js</exclude>
+                        </excludes>
+                    </resource>
+                </resources>
+
                 <plugins>
+
+                    <!-- Enforce JDK8, because Nashorn is available only starting from JDK8. -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
@@ -83,6 +117,8 @@
                             </execution>
                         </executions>
                     </plugin>
+
+                    <!-- Run RequireJS optimizer using Nashorn JS engine. -->
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
@@ -97,13 +133,63 @@
                         </executions>
                         <configuration>
                             <executable>${java.home}/bin/${jjs}</executable>
-                            <commandlineArgs>-scripting ${project.basedir}/tools/r-2.1.22.js -- -o ${project.basedir}/build.js</commandlineArgs>
+                            <commandlineArgs>-scripting ${project.basedir}/requirejs/r-2.1.22.js -- -o ${project.basedir}/requirejs/build.js</commandlineArgs>
                         </configuration>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
+                    <!-- Copy optimized JS resources to final JAR. -->
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>2.7</version>
+                        <executions>
+                            <execution>
+                                <id>copy-resources</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${basedir}/target/classes/static/js</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>target/r/static/js</directory>
+                                            <filtering>false</filtering>
+                                            <excludes>
+                                                <exclude>config.js</exclude>
+                                                <exclude>build.txt</exclude>
+                                            </excludes>
+                                        </resource>
+                                        <!-- Replace 'development' config.js with 'production' version. -->
+                                        <resource>
+                                            <directory>requirejs</directory>
+                                            <includes>
+                                                <include>config.js</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Remove debug file created by RequireJS from final JAR. -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>static/js/build.txt</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+
+            </build>
+
+        </profile>
+
+    </profiles>
 
 </project>
