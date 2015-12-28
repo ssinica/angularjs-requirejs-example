@@ -9,4 +9,4 @@ build_optimized:
 run_optimized:
 		mvn spring-boot:run -Poptimize
 
-.PHONY: build run
+.PHONY: build run build_optimized run_optimized
